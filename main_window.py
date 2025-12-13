@@ -464,7 +464,7 @@ class MainWindow(QMainWindow):
     
     def show_about(self):
         """Show about dialog"""
-        about_text = """<h2>DLT Viewer - Simplified</h2>
+        about_text = """<h2>DLT Viewer - SoC DLT parser</h2>
         <p><b>Version:</b> 0.10</p>
         <p><b>Location:</b> Novi, MI</p>
         <br>
@@ -475,6 +475,12 @@ class MainWindow(QMainWindow):
         <br>
         <p>A lightweight DLT (Diagnostic Log and Trace) file viewer<br>
         with advanced search capabilities.</p>
+        <br>
+        <p><b>Copyright © 2025</b><br>
+        All rights reserved.</p>
+        <p style="font-size: 9px; color: #666;">
+        This software is provided "as is" without warranty of any kind.<br>
+        For internal use only. Not for redistribution.</p>
         """
         QMessageBox.about(self, "About DLT Viewer", about_text)
     
