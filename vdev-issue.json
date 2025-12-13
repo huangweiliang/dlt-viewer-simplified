@@ -1,0 +1,32 @@
+[
+  {
+    "pattern": "VDEV_CTRL_TERMINATE",
+    "is_regex": true,
+    "color": "#FFFF99"
+  },
+  {
+    "pattern": "SUSD_IVI_DOWN_REASON_VMM_DOWN_ABNORMAL",
+    "is_regex": true,
+    "color": "#99FF99"
+  },
+  {
+    "pattern": "viosnd_terminate",
+    "is_regex": true,
+    "color": "#99FFFF"
+  },
+  {
+    "pattern": "SUSD_PLC_STATE_IVI",
+    "is_regex": true,
+    "color": "#FFB3FF"
+  },
+  {
+    "pattern": "resumed from STR",
+    "is_regex": true,
+    "color": "#FFCC99"
+  },
+  {
+    "pattern": "ioctl_kgsl_device_stop",
+    "is_regex": true,
+    "color": "#B3D9FF"
+  }
+]
