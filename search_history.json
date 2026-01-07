@@ -1,4 +1,5 @@
 [
+  "vmm_service|viosnd_terminate|Fatal: qvm|Adreno-UNKNOWN|susd_controller|Ask qvm to load kernel|ANDROID_FS_UNMOUNT|qvm|Thermal|Temperature",
   "VDEV_CTRL_TERMINATE|SUSD_IVI_DOWN_REASON_VMM_DOWN_ABNORMAL|viosnd_terminate|SUSD_PLC_STATE_IVI|resumed from STR|ioctl_kgsl_device_stop",
   "PLC_STAT_IVI",
   "qvm|vmm|wakeup"

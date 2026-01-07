@@ -66,6 +66,8 @@ class MainWindow(QMainWindow):
     
     def copy_selected_rows(self):
         """Copy selected rows to clipboard with all columns"""
+        from PyQt5.QtWidgets import QProgressDialog
+        
         selected_rows = set()
         for item in self.table.selectedItems():
             selected_rows.add(item.row())
@@ -75,10 +77,30 @@ class MainWindow(QMainWindow):
         
         # Sort rows
         sorted_rows = sorted(selected_rows)
+        row_count = len(sorted_rows)
+        
+        # Show progress dialog for large selections
+        progress = None
+        if row_count > 100:
+            progress = QProgressDialog("Copying rows to clipboard...", "Cancel", 0, row_count, self)
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setMinimumDuration(0)
+            progress.setValue(0)
         
         # Build text with all columns
         lines = []
-        for row in sorted_rows:
+        total_chars = 0
+        max_clipboard_size = 50 * 1024 * 1024  # 50 MB limit
+        
+        for idx, row in enumerate(sorted_rows):
+            # Update progress
+            if progress and idx % 50 == 0:
+                progress.setValue(idx)
+                QApplication.processEvents()
+                if progress.wasCanceled():
+                    self.statusBar().showMessage("Copy cancelled", 2000)
+                    return
+            
             columns = []
             for col in range(self.table.columnCount()):
                 item = self.table.item(row, col)
@@ -86,17 +108,68 @@ class MainWindow(QMainWindow):
                     columns.append(item.text())
                 else:
                     columns.append("")
-            lines.append("  ".join(columns))
+            
+            line = "  ".join(columns)
+            lines.append(line)
+            total_chars += len(line) + 1  # +1 for newline
+            
+            # Check size limit
+            if total_chars > max_clipboard_size:
+                if progress:
+                    progress.close()
+                response = QMessageBox.warning(
+                    self, 
+                    "Data Too Large", 
+                    f"Selected data exceeds clipboard size limit ({idx + 1} rows, ~{total_chars // (1024*1024)} MB).\n\n"
+                    f"Only the first {idx} rows will be copied.\n\nContinue?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+                if response == QMessageBox.No:
+                    self.statusBar().showMessage("Copy cancelled", 2000)
+                    return
+                break
+        
+        if progress:
+            progress.setValue(row_count)
         
         # Copy to clipboard with error handling
         try:
             clipboard = QApplication.clipboard()
             clipboard.clear()
             text = "\n".join(lines)
+            
+            # Try to set clipboard with timeout handling
             clipboard.setText(text, QClipboard.Clipboard)
-            self.statusBar().showMessage(f"Copied {len(sorted_rows)} row(s) to clipboard", 2000)
+            
+            # Also set to selection clipboard on Linux
+            if clipboard.supportsSelection():
+                clipboard.setText(text, QClipboard.Selection)
+            
+            if progress:
+                progress.close()
+            
+            data_size = len(text)
+            if data_size > 1024 * 1024:
+                size_str = f"{data_size / (1024 * 1024):.1f} MB"
+            elif data_size > 1024:
+                size_str = f"{data_size / 1024:.1f} KB"
+            else:
+                size_str = f"{data_size} bytes"
+            
+            self.statusBar().showMessage(
+                f"Copied {len(lines)} row(s) to clipboard ({size_str})", 
+                3000
+            )
         except Exception as e:
-            QMessageBox.warning(self, "Copy Error", f"Failed to copy to clipboard: {str(e)}")
+            if progress:
+                progress.close()
+            QMessageBox.warning(
+                self, 
+                "Copy Error", 
+                f"Failed to copy to clipboard:\n{str(e)}\n\n"
+                f"Try selecting fewer rows or saving to a file instead."
+            )
         
     def init_ui(self):
         """Initialize the user interface"""
