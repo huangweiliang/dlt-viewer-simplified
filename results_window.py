@@ -176,8 +176,8 @@ class ResultsWindow(QMainWindow):
         self.table.setColumnWidth(3, 60)   # App ID
         self.table.setColumnWidth(4, 80)   # Context ID
         self.table.setColumnWidth(5, 60)   # Type
-        self.table.setColumnWidth(6, 600)  # Payload
-        self.table.setColumnWidth(7, 120)  # Source
+        self.table.setColumnWidth(6, 1040)  # Payload
+        self.table.setColumnWidth(7, 80)  # Source
         # Make last column stretch to fill remaining space
         header.setStretchLastSection(True)
         
