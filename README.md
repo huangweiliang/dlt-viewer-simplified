@@ -67,6 +67,20 @@ This viewer supports standard DLT files with storage headers. Files are expected
 - Python 3.7+
 - PyQt5 5.15.0+
 
+## Changelog
+
+### Version 0.11 (January 6, 2026)
+- **Improved Copy Functionality**: Enhanced clipboard operations for large data sets
+  - Added progress dialog for copying >100 rows
+  - Implemented 50MB size limit with user warnings
+  - Shows data size feedback (KB/MB) in status bar
+  - Cancellable operations for better control
+  - Better error messages with alternative suggestions
+- **UI Enhancement**: Increased default Payload column width from 600 to 1000 pixels for better readability
+
+### Version 0.10
+- Initial release with core DLT viewing and search capabilities
+
 ## License
 
 This project is open source.

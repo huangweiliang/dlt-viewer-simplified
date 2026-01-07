@@ -226,7 +226,7 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.memory_label)
         
         # Add version info as permanent widget on the right
-        self.version_label = QLabel(" v0.10 ")
+        self.version_label = QLabel(" v0.11 ")
         self.version_label.setStyleSheet("QLabel { padding: 0 5px; }")
         self.statusBar().addPermanentWidget(self.version_label)
         
@@ -538,7 +538,7 @@ class MainWindow(QMainWindow):
     def show_about(self):
         """Show about dialog"""
         about_text = """<h2>DLT Viewer - SoC DLT parser</h2>
-        <p><b>Version:</b> 0.10</p>
+        <p><b>Version:</b> 0.11</p>
         <p><b>Location:</b> Novi, MI</p>
         <br>
         <p><b>Requirements and Testing:</b><br>
