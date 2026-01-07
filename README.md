@@ -2,6 +2,8 @@
 
 A simple and lightweight DLT (Diagnostic Log and Trace) file viewer with search capabilities.
 
+![DLT Viewer Demo](guide.gif)
+
 ## Features
 
 - **Multi-file Loading**: Open multiple DLT files at once, automatically sorted by index
