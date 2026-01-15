@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
         self.search_patterns = []  # List of (pattern, is_regex, color) tuples
         self.current_files = []
         self.results_window = None  # Reference to results window
+        self.search_dialog = None  # Reference to search dialog
         
         self.init_ui()
     
@@ -405,12 +406,20 @@ class MainWindow(QMainWindow):
         if not self.messages:
             QMessageBox.information(self, "No Data", "Please load DLT files first.")
             return
+        # Create or show existing dialog
+        if self.search_dialog is None:
+            self.search_dialog = SearchDialog(self)
+            self.search_dialog.search_requested.connect(self.on_search_requested)
         
-        dialog = SearchDialog(self)
-        if dialog.exec_():
-            patterns = dialog.get_search_patterns()
-            if patterns:
-                self.search_patterns = patterns
+        self.search_dialog.show()
+        self.search_dialog.raise_()
+        self.search_dialog.activateWindow()
+    
+    def on_search_requested(self, patterns):
+        """Handle search request from dialog"""
+        if patterns:
+            self.search_patterns = patterns
+            self.search_patterns = patterns
                 self.perform_search()
     
     def perform_search(self):

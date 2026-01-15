@@ -4,7 +4,7 @@ Search Dialog for DLT Viewer
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                              QLineEdit, QPushButton, QCheckBox, QListWidget,
                              QListWidgetItem, QColorDialog, QMessageBox, QComboBox, QFileDialog)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor
 from typing import List, Tuple
 import json
@@ -33,6 +33,9 @@ class SearchDialog(QDialog):
     
     HISTORY_FILE = "search_history.json"
     MAX_HISTORY = 50
+    
+    # Signal emitted when search is requested
+    search_requested = pyqtSignal(list)  # Emits list of (pattern, is_regex, color) tuples
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -121,17 +124,24 @@ class SearchDialog(QDialog):
         button_layout = QHBoxLayout()
         
         search_button = QPushButton("Search")
-        search_button.clicked.connect(self.accept)
+        search_button.clicked.connect(self.perform_search)
         search_button.setDefault(True)
         button_layout.addWidget(search_button)
         
-        cancel_button = QPushButton("Cancel")
-        cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_button)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
+        button_layout.addWidget(close_button)
         
         layout.addLayout(button_layout)
         
         self.setLayout(layout)
+    
+    def perform_search(self):
+        """Emit search signal with current patterns"""
+        if self.search_patterns:
+            self.search_requested.emit(self.search_patterns)
+        else:
+            QMessageBox.information(self, "No Patterns", "Please add at least one search pattern.")
     
     def select_color(self):
         """Open color picker dialog"""
