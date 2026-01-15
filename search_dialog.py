@@ -47,6 +47,9 @@ class SearchDialog(QDialog):
         self.setMinimumWidth(500)
         self.setMinimumHeight(400)
         
+        # Make the dialog independent from parent window minimize/maximize
+        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        
         layout = QVBoxLayout()
         
         # Search input section
