@@ -213,6 +213,8 @@ class MainWindow(QMainWindow):
         self.table.setAlternatingRowColors(True)
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+        self.table.setWordWrap(True)  # Enable word wrapping for long text
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)  # Auto-adjust row height
         
         # Set column widths - all interactive for manual adjustment
         header = self.table.horizontalHeader()
