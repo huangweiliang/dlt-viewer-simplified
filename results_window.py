@@ -2,7 +2,7 @@
 Results Window for DLT Viewer - Shows only search results
 """
 from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, 
-                             QHeaderView, QAction, QApplication)
+                             QHeaderView, QAction, QApplication, QMenu)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QBrush, QFont, QKeyEvent
 from typing import List, Tuple
@@ -133,10 +133,25 @@ class ResultsWindow(QMainWindow):
                 f"Try selecting fewer rows or saving to a file instead."
             )
     
+    def show_context_menu(self, position):
+        """Show context menu for table"""
+        menu = QMenu()
+        
+        copy_action = QAction("Copy", self)
+        copy_action.setShortcut("Ctrl+C")
+        copy_action.triggered.connect(self.copy_selected_rows)
+        menu.addAction(copy_action)
+        
+        # Show menu at cursor position
+        menu.exec_(self.table.viewport().mapToGlobal(position))
+    
     def init_ui(self):
         """Initialize the user interface"""
         self.setWindowTitle("Search Results - DLT Viewer")
         self.setGeometry(150, 150, 1400, 600)
+        
+        # Make the window independent from parent window minimize/maximize
+        self.setWindowFlags(self.windowFlags() | Qt.Window)
         
         # Create menu bar
         menubar = self.menuBar()
@@ -164,7 +179,10 @@ class ResultsWindow(QMainWindow):
         # Set table properties
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Read-only
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.ExtendedSelection)  # Enable multi-row selection
         self.table.setAlternatingRowColors(True)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
         
         # Set column widths - all interactive for manual adjustment
         header = self.table.horizontalHeader()

@@ -171,6 +171,18 @@ class MainWindow(QMainWindow):
                 f"Try selecting fewer rows or saving to a file instead."
             )
         
+    def show_context_menu(self, position):
+        """Show context menu for table"""
+        menu = QMenu()
+        
+        copy_action = QAction("Copy", self)
+        copy_action.setShortcut("Ctrl+C")
+        copy_action.triggered.connect(self.copy_selected_rows)
+        menu.addAction(copy_action)
+        
+        # Show menu at cursor position
+        menu.exec_(self.table.viewport().mapToGlobal(position))
+    
     def init_ui(self):
         """Initialize the user interface"""
         self.setWindowTitle("DLT Viewer - SoC DLT parser")
@@ -197,7 +209,10 @@ class MainWindow(QMainWindow):
         # Set table properties
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Read-only
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.ExtendedSelection)  # Enable multi-row selection
         self.table.setAlternatingRowColors(True)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
         
         # Set column widths - all interactive for manual adjustment
         header = self.table.horizontalHeader()
