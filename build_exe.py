@@ -29,6 +29,9 @@ def build_executable():
         icon_param = "--icon=NONE"
         print("No icon file found (app_icon.ico). Using default icon.")
     
+    # Add pydlt library path
+    pydlt_path = r"c:\Users\huw6szh\Desktop\QNX\QNX\misc\dlt_parser\py3"
+    
     # PyInstaller command
     cmd = [
         "pyinstaller",
@@ -36,6 +39,13 @@ def build_executable():
         "--onefile",
         "--windowed",
         icon_param,
+        f"--paths={pydlt_path}",
+        "--hidden-import=pydlt",
+        "--hidden-import=pydlt.file",
+        "--hidden-import=pydlt.message",
+        "--hidden-import=pydlt.header",
+        "--hidden-import=pydlt.payload",
+        "--hidden-import=pydlt.control",
         "--add-data=search_history.json;.",
         "main.py"
     ]
