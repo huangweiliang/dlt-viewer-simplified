@@ -419,8 +419,7 @@ class MainWindow(QMainWindow):
         """Handle search request from dialog"""
         if patterns:
             self.search_patterns = patterns
-            self.search_patterns = patterns
-                self.perform_search()
+            self.perform_search()
     
     def perform_search(self):
         """Perform search based on current search patterns"""
