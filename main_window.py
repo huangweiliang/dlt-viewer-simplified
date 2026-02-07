@@ -9,6 +9,7 @@ from PyQt5.QtGui import QColor, QBrush, QKeyEvent, QClipboard
 from dlt_parser import DLTParser, DLTMessage
 from search_dialog import SearchDialog
 from typing import List
+from datetime import datetime
 import os
 import psutil
 
@@ -56,6 +57,9 @@ class MainWindow(QMainWindow):
         self.results_window = None  # Reference to results window
         self.search_dialog = None  # Reference to search dialog
         
+        # Enable drag and drop
+        self.setAcceptDrops(True)
+        
         self.init_ui()
     
     def keyPressEvent(self, event: QKeyEvent):
@@ -64,6 +68,33 @@ class MainWindow(QMainWindow):
             self.copy_selected_rows()
         else:
             super().keyPressEvent(event)
+    
+    def dragEnterEvent(self, event):
+        """Handle drag enter event"""
+        if event.mimeData().hasUrls():
+            # Check if any of the dragged files are .dlt files
+            urls = event.mimeData().urls()
+            for url in urls:
+                if url.toLocalFile().lower().endswith('.dlt'):
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+    
+    def dropEvent(self, event):
+        """Handle drop event"""
+        urls = event.mimeData().urls()
+        file_paths = []
+        
+        for url in urls:
+            file_path = url.toLocalFile()
+            if file_path.lower().endswith('.dlt'):
+                file_paths.append(file_path)
+        
+        if file_paths:
+            event.acceptProposedAction()
+            self.load_files(file_paths)
+        else:
+            event.ignore()
     
     def copy_selected_rows(self):
         """Copy selected rows to clipboard with all columns"""
@@ -205,7 +236,7 @@ class MainWindow(QMainWindow):
         table_font = QFont()
         table_font.setPointSize(9)  # Readable font size
         self.table.setFont(table_font)
-        self.table.verticalHeader().setDefaultSectionSize(22)  # Adjusted row height
+        self.table.verticalHeader().setDefaultSectionSize(20)  # Adjusted row height
         
         # Set table properties
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Read-only
@@ -259,6 +290,12 @@ class MainWindow(QMainWindow):
         open_action.triggered.connect(self.open_files)
         file_menu.addAction(open_action)
         
+        export_action = QAction('&Export to Text...', self)
+        export_action.setShortcut('Ctrl+E')
+        export_action.setStatusTip('Export loaded messages to text file')
+        export_action.triggered.connect(self.export_to_text)
+        file_menu.addAction(export_action)
+        
         file_menu.addSeparator()
         
         exit_action = QAction('E&xit', self)
@@ -309,6 +346,72 @@ class MainWindow(QMainWindow):
         
         if file_paths:
             self.load_files(file_paths)
+    
+    def export_to_text(self):
+        """Export loaded messages to a text file"""
+        if not self.messages:
+            QMessageBox.warning(
+                self,
+                "No Data",
+                "No messages loaded. Please open DLT files first."
+            )
+            return
+        
+        # Open save file dialog
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export to Text File",
+            "exported_messages.txt",
+            "Text Files (*.txt);;Log Files (*.log);;All Files (*.*)"
+        )
+        
+        if not file_path:
+            return
+        
+        # Show progress dialog
+        progress = QProgressDialog("Exporting messages...", "Cancel", 0, len(self.messages), self)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.setValue(0)
+        
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                # Write header
+                f.write("="*100 + "\n")
+                f.write("DLT Messages Export\n")
+                f.write(f"Total Messages: {len(self.messages)}\n")
+                f.write(f"Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write("="*100 + "\n\n")
+                
+                # Write messages
+                for i, msg in enumerate(self.messages):
+                    # Update progress every 100 messages
+                    if i % 100 == 0:
+                        progress.setValue(i)
+                        QApplication.processEvents()
+                        if progress.wasCanceled():
+                            self.statusBar().showMessage("Export cancelled", 2000)
+                            return
+                    
+                    # Write message in readable format
+                    f.write(f"{msg.timestamp} | {msg.ecu_id:4s} | {msg.app_id:4s} | {msg.context_id:4s} | {msg.message_type:7s} | {msg.payload}\n")
+                
+                progress.setValue(len(self.messages))
+            
+            self.statusBar().showMessage(f"Successfully exported {len(self.messages)} messages to {file_path}", 5000)
+            QMessageBox.information(
+                self,
+                "Export Complete",
+                f"Successfully exported {len(self.messages)} messages to:\n{file_path}"
+            )
+            
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Export Error",
+                f"Failed to export messages:\n{str(e)}"
+            )
+            self.statusBar().showMessage("Export failed", 3000)
     
     def load_files(self, file_paths: List[str]):
         """Load DLT files"""
